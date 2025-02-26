@@ -1,12 +1,17 @@
 {% extends "base.html" %}
+
+{% block title %}Add Event - Flask Calendar{% endblock %}
+
 {% block content %}
-<h2>Add Event</h2>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <p>{{ form.title.label }} {{ form.title }}</p>
-    <p>{{ form.description.label }} {{ form.description }}</p>
-    <p>{{ form.date.label }} {{ form.date }}</p>
-    <p>{{ form.time.label }} {{ form.time }}</p>
-    <p>{{ form.submit }}</p>
-</form>
+    <h1>Add a New Event</h1>
+
+    <!-- Event Form -->
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.title.label }} {{ form.title }}</p>
+        <p>{{ form.description.label }} {{ form.description }}</p>
+        <p>{{ form.date.label }} {{ form.date }}</p>
+        <p>{{ form.time.label }} {{ form.time }}</p>
+        <p>{{ form.submit }}</p>
+    </form>
 {% endblock %}

@@ -1,9 +1,168 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Upcoming Events</h2>
-<ul>
-    {% for event in events %}
-    <li>{{ event.title }} - {{ event.date }} at {{ event.time }}</li>
-    {% endfor %}
-</ul>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fullcalendar.min.css') }}">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        #calendar {
+            width: 65%;
+        }
+        .side-section {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            #calendar, .side-section {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="container">
+        <!-- Calendar Section -->
+        <div id="calendar"></div>
+
+        <!-- Right Side: Reminders & Upcoming Events -->
+        <div class="side-section">
+            <!-- 🔔 Today's Reminders -->
+            <div class="box">
+                <h2>Today's Reminders</h2>
+                <ul id="reminder-list">
+                    <li>No reminders yet.</li>
+                </ul>
+            </div>
+
+            <!-- 📅 Upcoming Events -->
+            <div class="box">
+                <h2>Upcoming Events</h2>
+                <ul id="upcoming-events-list">
+                    <li>Loading...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="eventModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEventForm">
+                        <div class="mb-3">
+                            <label for="eventTitle">Title</label>
+                            <input type="text" class="form-control" id="eventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDate">Date</label>
+                            <input type="text" class="form-control" id="eventDate" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventTime">Time</label>
+                            <input type="time" class="form-control" id="eventTime">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Event</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FullCalendar & Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/fullcalendar.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    fetch("/get_upcoming_events")
+    .then(response => response.json())
+    .then(events => {
+        let eventList = document.getElementById("upcoming-events-list");
+        eventList.innerHTML = ""; 
+
+        console.log("Fetched Upcoming Events:", events); 
+
+        if (events.length > 0) {
+            events.forEach(event => {
+                let listItem = document.createElement("li");
+                listItem.textContent = `${event.title} on ${event.date}`;
+                eventList.appendChild(listItem);
+            });
+        } else {
+            eventList.innerHTML = "<li>No upcoming events.</li>";
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching upcoming events:", error);
+        document.getElementById("upcoming-events-list").innerHTML = "<li>Failed to load events.</li>";
+    });
+
+    // Fetch and Display Today's Reminders
+    fetch("/get_todays_reminders")
+    .then(response => response.json())
+    .then(reminders => {
+        let reminderList = document.getElementById("reminder-list");
+        reminderList.innerHTML = ""; 
+        if (reminders.length > 0) {
+            reminders.forEach(reminder => {
+                let listItem = document.createElement("li");
+                listItem.textContent = `${reminder.title} at ${reminder.time}`;
+                reminderList.appendChild(listItem);
+            });
+        } else {
+            reminderList.innerHTML = "<li>No reminders for today.</li>";
+        }
+    });
+
+    var calendarEl = document.getElementById("calendar");
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        events: "/get_events",
+        dateClick: function(info) {
+            document.getElementById("eventDate").value = info.dateStr;
+            var eventModal = new bootstrap.Modal(document.getElementById("eventModal"));
+            eventModal.show();
+        }
+    });
+    calendar.render();
+});
+
+    </script>
+
+</body>
+</html>
