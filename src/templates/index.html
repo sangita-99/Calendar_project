@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Calendar</title>
+
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background-color: #e0e5d5;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        /* 🔹 Move Good Morning to the Left */
+        .header-container {
+            width: 100%;
+            text-align: left;
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* 🔹 Calendar Styling */
+        .calendar-container {
+            flex: 2;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+        }
+
+        /* 🔹 Ensure calendar grid structure */
+        #calendar {
+            font-size: 16px;
+            padding: 10px;
+            min-height: 500px;
+            display: block;
+            width: 100%;
+        }
+
+        /* 🔹 Side Section (Reminders & Events) */
+        .side-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Calendar Container -->
+        <div class="calendar-container">
+            <div id="calendar"></div>
+        </div>
+
+        <!-- Side Section: Reminders & Upcoming Events -->
+        <div class="side-section">
+            <div class="box">
+                <h4>Today's Reminders</h4>
+                <div id="reminder-list">No reminders for today.</div>
+            </div>
+
+            <div class="box">
+                <h4>Upcoming Events</h4>
+                <div id="upcoming-events">No upcoming events.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalLabel">Add Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <div class="mb-3">
+                            <label for="eventTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="eventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="eventDescription"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="eventDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventTime" class="form-label">Time (optional)</label>
+                            <input type="time" class="form-control" id="eventTime">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEvent">Save Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("✅ Initializing FullCalendar");
+
+            // Get the calendar element
+            var calendarEl = document.getElementById('calendar');
+
+            // Initialize the calendar
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: "dayGridMonth", // Default view
+                headerToolbar: {
+                    left: "prev,next today",
+                    center: "title",
+                    right: "dayGridMonth,timeGridWeek,timeGridDay" // Add view buttons
+                },
+                events: "/get_events", // Replace with your events endpoint or static data
+                height: "auto", // Auto-adjust height
+                aspectRatio: 1.8, // Adjust aspect ratio
+                fixedWeekCount: true, // Show 6 weeks always
+                dayMaxEventRows: 2, // Limit events per day
+
+                // Handle date clicks
+                dateClick: function(info) {
+                    console.log("✅ Date Clicked:", info.dateStr);
+
+                    // Set the clicked date in the modal form
+                    document.getElementById('eventDate').value = info.dateStr;
+
+                    // Show the modal
+                    var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+                    eventModal.show();
+                }
+            });
+
+            // Render the calendar
+            calendar.render();
+            console.log("✅ Calendar Rendered Successfully!");
+
+            // Function to fetch and display upcoming events
+            function fetchUpcomingEvents() {
+                fetch("/get_upcoming_events")
+                    .then(response => response.json())
+                    .then(data => {
+                        const upcomingEventsDiv = document.getElementById('upcoming-events');
+                        if (data.length > 0) {
+                            upcomingEventsDiv.innerHTML = data.map(event => `
+                                <div>
+                                    <strong>${event.title}</strong> - ${event.date}
+                                </div>
+                            `).join('');
+                        } else {
+                            upcomingEventsDiv.innerHTML = "No upcoming events.";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching upcoming events:", error);
+                    });
+            }
+
+            // Function to fetch and display today's reminders
+            function fetchTodaysReminders() {
+                fetch("/get_todays_reminders")
+                    .then(response => response.json())
+                    .then(data => {
+                        const reminderListDiv = document.getElementById('reminder-list');
+                        if (data.length > 0) {
+                            reminderListDiv.innerHTML = data.map(reminder => `
+                                <div>
+                                    <strong>${reminder.title}</strong> - ${reminder.time}
+                                </div>
+                            `).join('');
+                        } else {
+                            reminderListDiv.innerHTML = "No reminders for today.";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching today's reminders:", error);
+                    });
+            }
+
+            // Fetch initial data
+            fetchUpcomingEvents();
+            fetchTodaysReminders();
+
+            // Handle Save Event button click
+            document.getElementById('saveEvent').addEventListener('click', function () {
+                const eventTitle = document.getElementById('eventTitle').value;
+                const eventDescription = document.getElementById('eventDescription').value;
+                const eventDate = document.getElementById('eventDate').value;
+                const eventTime = document.getElementById('eventTime').value;
+
+                if (!eventTitle || !eventDate) {
+                    alert("Title and Date are required!");
+                    return;
+                }
+
+                // Send data to the backend
+                fetch("/add_event", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        title: eventTitle,
+                        description: eventDescription,
+                        date: eventDate,
+                        time: eventTime
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Event added successfully!");
+                        calendar.refetchEvents(); // Refresh the calendar
+                        fetchUpcomingEvents(); // Refresh upcoming events
+                        fetchTodaysReminders(); // Refresh today's reminders
+                        bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide(); // Hide the modal
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while saving the event.");
+                });
+            });
+        });
+    </script>
+</body>
+</html>
