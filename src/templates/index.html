@@ -154,7 +154,7 @@
 
                 // Handle date clicks
                 dateClick: function(info) {
-                    console.log("✅ Date Clicked:", info.dateStr);
+                    console.log("Date Clicked:", info.dateStr);
 
                     // Set the clicked date in the modal form
                     document.getElementById('eventDate').value = info.dateStr;
@@ -167,7 +167,7 @@
 
             // Render the calendar
             calendar.render();
-            console.log("✅ Calendar Rendered Successfully!");
+            console.log("Calendar Rendered Successfully!");
 
             // Function to fetch and display upcoming events
             function fetchUpcomingEvents() {
@@ -176,11 +176,10 @@
                     .then(data => {
                         const upcomingEventsDiv = document.getElementById('upcoming-events');
                         if (data.length > 0) {
-                            upcomingEventsDiv.innerHTML = data.map(event => `
-                                <div>
-                                    <strong>${event.title}</strong> - ${event.date}
-                                </div>
-                            `).join('');
+                            upcomingEventsDiv.innerHTML = `<ul style="padding-left: 20px;">` + data.map(event => `
+                    <li><strong>${event.title}</strong> - ${event.date}</li>
+                            `).join('') + `</ul>`;
+
                         } else {
                             upcomingEventsDiv.innerHTML = "No upcoming events.";
                         }
@@ -197,11 +196,10 @@
                     .then(data => {
                         const reminderListDiv = document.getElementById('reminder-list');
                         if (data.length > 0) {
-                            reminderListDiv.innerHTML = data.map(reminder => `
-                                <div>
-                                    <strong>${reminder.title}</strong> - ${reminder.time}
-                                </div>
-                            `).join('');
+                            reminderListDiv.innerHTML = `<ul style="padding-left: 20px;">` + data.map(reminder => `
+    <li><strong>${reminder.title}</strong> - ${reminder.time}</li>
+`).join('') + `</ul>`;
+
                         } else {
                             reminderListDiv.innerHTML = "No reminders for today.";
                         }
