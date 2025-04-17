@@ -17,7 +17,7 @@ def index():
 @app.route("/get_events")
 def get_events():
     events = Event.query.all()
-    event_list = [{"title": e.title, "start": str(e.date)} for e in events]
+    event_list = [{"id": e.id, "title": e.title, "start": str(e.date)} for e in events]
     return jsonify(event_list)
 
 @app.route("/add_event", methods=["POST"])
@@ -79,6 +79,28 @@ def get_todays_reminders():
     except Exception as e:
         print("❌ Error fetching today's reminders:", e)
         return jsonify({"error": str(e)}), 500
+
+
+
+@app.route("/edit_event/<int:event_id>", methods=["POST"])
+def edit_event(event_id):
+    data = request.json
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({"status": "error", "message": "Event not found"}), 404
+    event.title = data.get("title", event.title)
+    db.session.commit()
+    return jsonify({"status": "success"})
+
+
+@app.route("/delete_event/<int:event_id>", methods=["DELETE"])
+def delete_event(event_id):
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({"status": "error", "message": "Event not found"}), 404
+    db.session.delete(event)
+    db.session.commit()
+    return jsonify({"status": "success"})
 
 
 if __name__ == "__main__":
