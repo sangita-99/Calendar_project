@@ -3,36 +3,45 @@ Customizable Calendar App
 Description
 
 This is a web-based calendar application that allows users to add, track, and manage their events. It includes:
--A dynamic FullCalendar.js-powered calendar.
--The ability to add events by clicking on a date.
--A reminder system that displays today’s events.
--An upcoming events list for the next 7 days.
+-Add, edit, and delete events
+-Schedule recurring events (daily or weekly)
+-View reminders and upcoming events
+-Enable dark mode for accessibility
+-Export all events to a downloadable PDF
+-Automatically receive email reminders 30 minutes before events
+
+
 
 
 Purpose
 
-This project was developed as part of my coursework to enhance event management skills using Flask and FullCalendar.js. It serves as a practical example of integrating a frontend calendar library with a backend framework to create a fully functional web application.
+This project was developed for the CSIS 561 course final project to demonstrate proficiency in:
 
+-Backend web development using Flask
+-Frontend interaction via FullCalendar and JavaScript
+-CRUD operations and database handling using SQLAlchemy
+-Scheduling and automation (email reminders)
+-Advanced features like PDF generation and UI themes
 
 Value
 
-This app provides users with:
-Dynamic Calendar: Powered by FullCalendar.js, allowing users to view events in a monthly, weekly, or daily view.
-Event Management: Users can add events by clicking on a date and filling out a form.
-Reminders: Displays today’s events as reminders.
-Upcoming Events: Lists events scheduled for the next 7 days.
+This application provides a user-friendly interface for personal event tracking and scheduling. It combines clean UI design with backend automation to:
+
+-Reduce missed appointments
+-Centralize personal schedules
+-Automate notifications and planning
+
+Users benefit from an intuitive interface backed by real-time updates and automated email support — a compact but powerful productivity tool.
 
 Technologies Used
 
-Frontend:
--FullCalendar.js (Interactive calendar)
--Bootstrap (Styling and modals)
--JavaScript & AJAX (Dynamic updates)
-
-Backend:
--Flask (Python web framework)
-
-Database:
--SQLite (Lightweight database for storing events)
-
+Technology	            Purpose
+Python +               Flask	Web application backend
+SQLAlchemy	           ORM and database handling (SQLite)
+Flask-Mail	           Sending email reminders
+Flask-APScheduler	   Scheduled jobs (every 5 mins)
+FullCalendar.js	       Interactive calendar UI
+Bootstrap	           Responsive design and layout
+HTML/CSS/JS	           Frontend structure and interactivity
+ReportLab	           Export events to PDF
 
