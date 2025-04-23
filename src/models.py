@@ -1,5 +1,4 @@
 from extensions import db
-from datetime import datetime
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -8,5 +7,7 @@ class Event(db.Model):
     date = db.Column(db.Date, nullable=False)
     time = db.Column(db.Time, nullable=True)
 
-    def __repr__(self):
-        return f'<Event {self.title}>'
+    # ✅ Recurring event fields
+    is_recurring = db.Column(db.Boolean, default=False)
+    recurrence_type = db.Column(db.String(20), nullable=True)  # 'daily' or 'weekly'
+    recurrence_count = db.Column(db.Integer, nullable=True)
