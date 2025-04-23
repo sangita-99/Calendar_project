@@ -97,7 +97,7 @@ body.dark-mode .form-control {
     border: 1px solid #444;
 }
 
-/* 🌟 Transition for smooth toggle */
+/* Transition for smooth toggle */
 body,
 .calendar-container,
 .box,
@@ -110,6 +110,7 @@ body,
         </style>
 </head>
 <body>
+    <!-- Top bar: Dark mode and Export PDF -->
     <div class="text-end p-2">
         <button id="darkModeToggle" class="btn btn-outline-dark btn-sm">🌙 Dark Mode</button>
     </div>
@@ -120,8 +121,10 @@ body,
     </div>
     <div class="main-container">
         <div class="calendar-container">
+            <!-- Calendar layout (FullCalendar injected here) -->
             <div id="calendar"></div>
         </div>
+        <!-- Sidebar: Reminders and Upcoming Events -->
         <div class="side-section">
             <div class="box">
                 <h4>Today's Reminders</h4>
@@ -136,8 +139,7 @@ body,
         </div>
     </div>
 
-<!-- Modal -->
-<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+<!-- Modal form for adding or editing events --><div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" id="eventForm">
       <div class="modal-header">
@@ -196,6 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById('eventForm');
   const eventIdInput = document.getElementById('eventId');
 
+  // Initialize FullCalendar with event sources and click handling
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     headerToolbar: {
@@ -204,6 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
       right: ''
     },
     events: '/get_events',
+    // On existing event click: open modal for editing
     eventClick: function(info) {
       const event = info.event;
       document.getElementById('eventId').value = event.id;
@@ -214,6 +218,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('deleteEvent').style.display = 'inline-block';
       modal.show();
     },
+
+    // On day click: show modal for new event
     dateClick: function(info) {
       form.reset();
       document.getElementById('eventId').value = '';
@@ -224,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   calendar.render();
-
+  // Form submit: Add or update event via fetch
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     const id = eventIdInput.value;
@@ -253,6 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Delete event by ID
   document.getElementById("deleteEvent").addEventListener("click", function () {
     const id = eventIdInput.value;
     if (id && confirm("Are you sure you want to delete this event?")) {
@@ -275,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
       div.style.display = visible ? "block" : "none";
     });
   });
-   // 🌙 Dark mode toggle
+   // Dark mode toggle
    const darkToggle = document.getElementById("darkModeToggle");
             darkToggle.addEventListener("click", function () {
                 document.body.classList.toggle("dark-mode");
@@ -289,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 darkToggle.textContent = "☀️ Light Mode";
             }
   
-  // ✅ Fetch and render today's reminders
+  // Fetch and render today's reminders
 fetch("/get_todays_reminders")
   .then(response => response.json())
   .then(data => {
@@ -307,7 +314,7 @@ fetch("/get_todays_reminders")
     document.getElementById('reminder-list').innerHTML = "Error loading reminders.";
   });
 
-// ✅ Fetch and render upcoming events
+// Fetch and render upcoming events
 fetch("/get_upcoming_events")
   .then(response => response.json())
   .then(data => {

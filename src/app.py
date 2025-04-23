@@ -4,7 +4,6 @@ from extensions import db
 from models import Event
 from datetime import datetime, timedelta
 from flask_apscheduler import APScheduler
-
 from flask import send_file
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -39,16 +38,22 @@ db.init_app(app)
 
 @app.route("/")
 def index():
+    """Render the main calendar interface."""
     return render_template("index.html")
 
 @app.route("/get_events")
 def get_events():
+    """Return all calendar events in JSON format for the frontend."""
     events = Event.query.all()
     event_list = [{"id": e.id, "title": e.title, "description": e.description, "start": str(e.date), "time": str(e.time) if e.time else ""} for e in events]
     return jsonify(event_list)
 
 @app.route("/add_event", methods=["POST"])
 def add_event():
+    """
+    Handle adding a new calendar event.
+    Supports optional recurring settings.
+    """
     data = request.json
     if not data.get("title") or not data.get("date"):
         return jsonify({"status": "error", "message": "Title and date are required!"}), 400
@@ -84,6 +89,13 @@ def add_event():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 def generate_recurring_events(base_event, count, interval_days):
+    """
+    Recursively create and add recurring events to the database.
+    Args:
+        base_event (Event): The base event object
+        count (int): Number of additional recurrences to create
+        interval_days (int): Days between each recurrence (e.g., 1 = daily, 7 = weekly)
+    """
     if count <= 0:
         return []
     next_date = base_event.date + timedelta(days=interval_days)
@@ -102,6 +114,7 @@ def generate_recurring_events(base_event, count, interval_days):
 
 @app.route("/edit_event/<int:event_id>", methods=["POST"])
 def edit_event(event_id):
+    """Edit an existing event given its ID."""
     data = request.json
     event = Event.query.get(event_id)
     if not event:
@@ -119,6 +132,7 @@ def edit_event(event_id):
 
 @app.route("/delete_event/<int:event_id>", methods=["DELETE"])
 def delete_event(event_id):
+    """Delete an event from the database."""
     event = Event.query.get(event_id)
     if not event:
         return jsonify({"status": "error", "message": "Event not found"}), 404
@@ -128,6 +142,7 @@ def delete_event(event_id):
 
 @app.route("/get_upcoming_events")
 def get_upcoming_events():
+    """Return all upcoming events from today onward."""
     today = datetime.today().date()
     upcoming_events = Event.query.filter(Event.date >= today).order_by(Event.date).all()
 
@@ -137,6 +152,7 @@ def get_upcoming_events():
 
 @app.route("/get_todays_reminders")
 def get_todays_reminders():
+    """Return reminders for events scheduled for today."""
     today = datetime.today().date()
     today_events = Event.query.filter(Event.date == today).all()
 
@@ -154,6 +170,7 @@ def get_todays_reminders():
 
 @app.route("/send_upcoming_reminders")
 def send_upcoming_reminders():
+    """Send email reminders for events occurring within the next 30 minutes."""
     now = datetime.now()
     window = now + timedelta(minutes=30)
     today = now.date()
@@ -181,6 +198,13 @@ def send_upcoming_reminders():
 
 
 def send_reminder_email(to_email, event_title, event_time):
+    """
+    Send an email reminder to the specified recipient.
+    Args:
+        to_email (str): Recipient email address
+        event_title (str): Title of the event
+        event_time (str): Time of the event
+    """
     msg = Message(
         subject=f"Reminder: {event_title} at {event_time}",
         recipients=[to_email],
@@ -190,6 +214,10 @@ def send_reminder_email(to_email, event_title, event_time):
 
 @scheduler.task('interval', id='send_reminders_job', minutes=5, misfire_grace_time=900)
 def scheduled_email_check():
+    """
+    Scheduled task that runs every 5 minutes to check for upcoming events
+    occurring within the next 30 minutes. If found, an email reminder is sent.
+    """
     with app.app_context():
         now = datetime.now()
         window = now + timedelta(minutes=30)
@@ -203,6 +231,7 @@ def scheduled_email_check():
 
 @app.route("/export_pdf")
 def export_pdf():
+    """Generate and download a PDF file containing all calendar events."""
     with app.app_context():
         events = Event.query.order_by(Event.date).all()
         file_path = os.path.join(os.path.dirname(__file__), "calendar_export.pdf")
