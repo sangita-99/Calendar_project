@@ -1,0 +1,20 @@
+
+Calendar Project/
+├── README.md
+├── requirements.txt
+├── data_analysis.py
+├── instance/
+│   └── calendar.db (created automatically)
+├── src/
+│   ├── app.py
+│   ├── extensions.py
+│   ├── forms.py
+│   ├── models.py
+│   ├── static/
+│   │   ├── css/
+│   │   └── js/
+│   ├── templates/
+│   │   ├── base.html
+│   │   ├── index.html
+│   │   ├── add_event.html
+│   └── migrations/ (if using Flask-Migrate)
