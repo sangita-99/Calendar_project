@@ -158,7 +158,7 @@ def get_todays_reminders():
 
     print(f"📅 Today: {today}")
     for event in today_events:
-        print(f"✅ Found: {event.title} at {event.time}")
+        print(f"Found: {event.title} at {event.time}")
 
     reminder_list = [
         {"title": e.title, "time": str(e.time) if e.time else "All Day"}
@@ -192,7 +192,7 @@ def send_upcoming_reminders():
                 print(f"⏳ Skipped: {e.title} is not within 30 minutes")
 
     if not sent_any:
-        print("❌ No events matched the 30-minute window.")
+        print("No events matched the 30-minute window.")
 
     return jsonify({"status": "done"})
 
