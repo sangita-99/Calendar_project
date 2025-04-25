@@ -64,7 +64,7 @@ Combines user-friendly design with backend automation to help users track their 
    ```bash
    python
    >>> from app import db, app
-   >>> with app.app_context():
+   with app.app_context():
    ...     db.create_all()
    ```
 
