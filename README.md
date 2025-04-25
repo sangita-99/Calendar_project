@@ -63,10 +63,10 @@ Combines user-friendly design with backend automation to help users track their 
 5. **Prepare the Database**:
    ```bash
    python
-   >>> from app import db, app
+   from app import db, app
    with app.app_context():
-   ...     db.create_all()
-   ```
+   db.create_all()
+
 
 6. **Run the Application**:
    ```bash
