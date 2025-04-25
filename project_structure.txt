@@ -3,13 +3,13 @@ Calendar Project/
 ├── README.md
 ├── requirements.txt
 ├── data_analysis.py
-├── instance/
-│   └── calendar.db (created automatically)
 ├── src/
 │   ├── app.py
 │   ├── extensions.py
 │   ├── forms.py
 │   ├── models.py
+│   ├── instance/
+│   │  └── calendar.db (created automatically)
 │   ├── static/
 │   │   ├── css/
 │   │   └── js/
