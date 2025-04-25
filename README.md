@@ -61,11 +61,9 @@ Combines user-friendly design with backend automation to help users track their 
    - Update the `MAIL_USERNAME` and `MAIL_PASSWORD` fields in `app.py` with your Gmail and App Password.
 
 5. **Prepare the Database**:
-   ```bash
-   python
-   from app import db, app
-   with app.app_context():
-   db.create_all()
+    ```bash
+   python create_db.py
+   ```
 
 
 6. **Run the Application**:
