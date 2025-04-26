@@ -52,6 +52,15 @@ Combines user-friendly design with backend automation to help users track their 
    - Enable **2-Step Verification** on your Gmail account.
    - Generate a **16-character App Password** from your Google Account security settings.
    - Update the `MAIL_USERNAME` and `MAIL_PASSWORD` fields in `app.py` with your Gmail and App Password.
+   
+  *This step is optional and only required if you want to receive email reminders for your upcoming events.*
+
+If configured:
+You will receive an email reminder 30 minutes before your scheduled event.
+You will also get additional reminders at 5-minute intervals leading up to the event.
+
+Note:
+You need to properly set up the email functionality (Flask-Mail) and provide valid SMTP credentials to enable this feature.
 
 4. **Prepare the Database**:
     ```bash
