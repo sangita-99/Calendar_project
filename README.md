@@ -71,6 +71,7 @@ Combines user-friendly design with backend automation to help users track their 
    ```
 
 ## 🎥 YouTube Video Link
+[🔗 https://youtu.be/4CF4wyR61-o]
 
 
 ## 📂 GitHub Repository Link
